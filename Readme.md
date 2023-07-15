@@ -19,7 +19,7 @@ Raspberry Pi Pico WでRSSサイトにアクセスし、記事のタイトルと�
 
 ## 配線図
 
-<img src="https://github.com/led-mirage/RaspiPicoW-RSSDisplay/assets/139528700/56eac947-e8c5-4159-8c1f-ccaa13fa4e86" alt="配線図" width="500">
+<img src="https://github.com/led-mirage/RaspiPicoW-RSSDisplay/assets/139528700/b0e6df4f-4e0d-4a36-9acb-897446c70daf" alt="配線図" width="500">
 
 ## 実行画面
 
