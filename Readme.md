@@ -2,6 +2,8 @@
 
 Raspberry Pi Pico WでRSSサイトにアクセスし、記事のタイトルと概要をディスプレイに表示するプログラムです。
 
+This program is designed to sequentially display the titles and summaries of articles from an RSS website using Raspberry Pi Pico W and an OLED display.
+
 ## 機能概要
 
 - プログラム内で指定したRSSサイトにアクセスし、タイトルと記事の概要を順次表示します
