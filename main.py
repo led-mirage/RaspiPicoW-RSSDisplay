@@ -17,6 +17,9 @@ from ssd1306 import SSD1306_I2C
 from mfont import mfont
 
 
+# アプリケーション名
+APP_NAME = "RSS Display 1.1"
+
 # WiFiアクセスポイント
 WIFI_ACCESS_POINTS = [
     {"ssid": "ssid_A", "password": "pass_A"},
@@ -77,6 +80,11 @@ def main():
     # タクトスイッチ割り込みの有効化
     tact_sw.irq(trigger=Pin.IRQ_RISING, handler=tact_sw_pushed)
 
+    # アプリケーション名の表示
+    oled.fill(0)
+    oled.drawText(APP_NAME, 0, 0, font_size, 50)
+    time.sleep(2)
+
     # WiFiに接続する
     oled.fill(0)
     oled.drawText("Connect to WiFi...", 0, 0, font_size, 50)
@@ -111,10 +119,10 @@ def main():
                 oled.drawText(site["name"], 0, 0, font_size, 0)
                 time.sleep(1)
                 oled.fill(0)
-                oled.drawText("★ " + item.title, 0, 0, font_size, 50)
+                oled.drawText("★ " + item.title + "\n" + item.datetext, 0, 0, font_size, 50)
                 time.sleep(3)
                 oled.fill(0)
-                oled.drawText(item.description, 0, 0, font_size, 50)
+                oled.drawText(item.description + "\n" + item.datetext, 0, 0, font_size, 50)
                 time.sleep(5)
 
         current_index = 0
@@ -174,6 +182,12 @@ def read_rss(url):
             item.title = line_text.replace("<title>", "").replace("</title>", "")
         if is_item and line_text.startswith("<description>"):
             item.description = strip_tags(line_text.replace("<description>", "").replace("</description>", ""))
+        if is_item and line_text.startswith("<dc:date>"):
+            dcDate = line_text.replace("<dc:date>", "").replace("</dc:date>", "")
+            item.datetext = convert_dcdate_to_datetext(dcDate)
+        if is_item and line_text.startswith("<pubDate>"):
+            pubDate = line_text.replace("<pubDate>", "").replace("</pubDate>", "")
+            item.datetext = convert_pubdate_to_datetext(pubDate)
 
     return items
 
@@ -221,6 +235,34 @@ def strip_tags(html_text):
     html_text = _strip_tags(html_text)
     html_text = _strip_tags(html_text) # 2Pass
     return html_text
+
+
+# RSSのdc:date要素から年月日を取得する
+def convert_dcdate_to_datetext(date_str):
+    try:
+        date_parts = date_str.split('T')[0]
+        year, month, day = date_parts.split('-')
+        return f"{year}年{int(month)}月{int(day)}日"
+    except:
+        return ""
+
+
+# RSSのpubDate要素から年月日を取得する
+def convert_pubdate_to_datetext(date_str):
+    months = {
+        'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+        'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+    }
+
+    try:
+        date_parts = date_str.split()
+        day, month_str, year = date_parts[1], date_parts[2], date_parts[3]
+        month = months.get(month_str, None)
+        if month is None:
+            raise ValueError("Invalid pubDate Format")
+        return f"{year}年{int(month)}月{int(day)}日"
+    except:
+        return ""
 
 
 # カレントのRSSサイトのインデックス番号を取得する
@@ -293,6 +335,7 @@ class RssItem:
     def __init__(self):
         self.tille = ""
         self.description = ""
+        self.datetext = ""
 
 
 try:
